@@ -1,11 +1,12 @@
 local queue = {}
 queue.__index = queue
 
-function queue.new()
-    local new_queue = {}
+function queue.new(t)
+    local new_queue = t and table.pack(table.unpack(t)) or {}
     setmetatable(new_queue, queue)
-    new_queue.first = 0
-    new_queue.last = -1
+    new_queue.first = 1
+    new_queue.last = new_queue.n or 0
+    print(new_queue.last)
     return new_queue
 end
 
@@ -16,8 +17,8 @@ end
 
 function queue:unqueue()
     if self.first > self.last then
-        self.first = 0
-        self.last = -1
+        self.first = 1
+        self.last = 0
         return nil
     end
     local value = self[self.first]
