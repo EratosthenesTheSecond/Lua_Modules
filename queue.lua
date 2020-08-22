@@ -6,7 +6,6 @@ function queue.new(t)
     setmetatable(new_queue, queue)
     new_queue.first = 1
     new_queue.last = new_queue.n or 0
-    print(new_queue.last)
     return new_queue
 end
 
