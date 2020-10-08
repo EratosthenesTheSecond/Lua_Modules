@@ -15,6 +15,30 @@ local function reverse(t)
     end
 end
 
+local function fill(a, b)
+    local c, d = {}, {}
+    for i = 1, (#a > #b and #a or #b) do
+        table.insert(c, a[i] or 0)
+        table.insert(d, b[i] or 0)
+    end
+    return c, d
+end
+
+local function resolve_sub(t, i)
+    for j = i - 1, 1, -1 do
+        if t[j] and t[j] > 0 then
+            t[j] = t[j] - 1
+            for k = j + 1, i do
+                if k ~= i then
+                    t[k] = 9
+                elseif t[k] then
+                    t[k] = t[k] + 10
+                end
+            end
+        end
+    end
+end
+
 local function add(a, b, carry)
     local sum = {}
     for i = (#a > #b and #a or #b), 1, -1 do
@@ -152,10 +176,39 @@ function n:sub(a)
         local difference = a:sub(self)
         difference.negative = true
         return difference
-    else
-        -- do stuff here
-        return n.new()
     end
+    local self_dec, a_dec = fill(self.decimal, a.decimal)
+    local self_main, a_main = table.pack(table.unpack(self.main)), table.pack(table.unpack(a.main))
+    local dec_difference = {}
+    local main_difference = {}
+    for i = #self_dec, 1, -1 do
+        local difference = self_dec[i] - a_dec[i]
+        if difference < 0 then
+            resolve_sub(self_dec, i)
+            difference = self_dec[i] - a_dec[i]
+            if difference < 0 then
+                resolve_sub(self_main, self_main.n + 1)
+                self_dec[1] = self_dec[1] + 10
+                resolve_sub(self_dec, i)
+            else
+                table.insert(dec_difference, difference)
+            end
+        else
+            table.insert(dec_difference, difference)
+        end
+    end
+    for i = self_main.n, 1, -1 do
+        local difference = self_main[i] - a_main[i]
+        if difference < 0 then
+            resolve_sub(self_main, i)
+            table.insert(main_difference, self_main[i] - a_main)
+        else
+            table.insert(main_difference, difference)
+        end
+    end
+    reverse(main_difference)
+    reverse(dec_difference)
+    return n.new(table.concat(main_difference)..(#dec_difference > 0 and "." or "")..table.concat(dec_difference))
 end
 
 return n

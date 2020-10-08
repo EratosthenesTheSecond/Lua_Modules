@@ -9,12 +9,12 @@ function queue.new(t)
     return new_queue
 end
 
-function queue:queue(value)
+function queue:enqueue(value)
     self.last = self.last + 1
     self[self.last] = value
 end
 
-function queue:unqueue()
+function queue:dequeue()
     if self.first > self.last then
         self.first = 1
         self.last = 0
